@@ -69,9 +69,8 @@ class VideoService {
                 throw VideoServiceError.noData
             }
             
-            // Configure JSON decoder with ISO8601 date strategy
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            // Use custom JSON decoder with proper date handling
+            let decoder = Video.jsonDecoder
             
             // Decode the JSON response
             let videos = try decoder.decode([Video].self, from: data)

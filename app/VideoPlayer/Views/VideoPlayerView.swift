@@ -20,55 +20,48 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     /// Binding to control play/pause state
     @Binding var isPlaying: Bool
     
-    /// Player instance to control playback
-    let player: AVPlayer
-    
-    // MARK: - Initialization
-    
-    init(videoURL: URL?, isPlaying: Binding<Bool>) {
-        self.videoURL = videoURL
-        self._isPlaying = isPlaying
-        self.player = AVPlayer()
-    }
-    
     // MARK: - UIViewControllerRepresentable
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
-        controller.player = player
+        controller.player = context.coordinator.player
         controller.showsPlaybackControls = false // Use custom controls
         
         // Set up player with video URL if available
         if let url = videoURL {
             let playerItem = AVPlayerItem(url: url)
-            player.replaceCurrentItem(with: playerItem)
+            context.coordinator.player.replaceCurrentItem(with: playerItem)
         }
         
         // Ensure video is paused on initial load
-        player.pause()
+        context.coordinator.player.pause()
         
         // Add observer for player state changes
-        context.coordinator.addObservers(to: player)
+        context.coordinator.setupObservers()
         
         return controller
     }
     
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        let player = context.coordinator.player
+        
         // Update player item if URL changes
-        if let url = videoURL,
-           player.currentItem?.asset as? AVURLAsset != AVURLAsset(url: url) {
-            let playerItem = AVPlayerItem(url: url)
-            player.replaceCurrentItem(with: playerItem)
-            // Reset to paused state when video changes
-            player.pause()
-            DispatchQueue.main.async {
-                isPlaying = false
+        if let url = videoURL {
+            let currentURL = (player.currentItem?.asset as? AVURLAsset)?.url
+            if currentURL != url {
+                let playerItem = AVPlayerItem(url: url)
+                player.replaceCurrentItem(with: playerItem)
+                // Reset to paused state when video changes
+                player.pause()
+                DispatchQueue.main.async {
+                    isPlaying = false
+                }
             }
         }
         
         // Update playback state based on isPlaying binding
         if isPlaying {
-            if player.rate == 0 {
+            if player.rate == 0 && player.currentItem != nil {
                 player.play()
             }
         } else {
@@ -79,22 +72,24 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator(isPlaying: $isPlaying)
     }
     
     // MARK: - Coordinator
     
     class Coordinator: NSObject {
-        var parent: VideoPlayerView
-        private var timeObserver: Any?
+        let player: AVPlayer
+        var isPlaying: Binding<Bool>
         private var statusObserver: NSKeyValueObservation?
         
-        init(_ parent: VideoPlayerView) {
-            self.parent = parent
+        init(isPlaying: Binding<Bool>) {
+            self.player = AVPlayer()
+            self.isPlaying = isPlaying
+            super.init()
         }
         
-        /// Adds observers to monitor player state
-        func addObservers(to player: AVPlayer) {
+        /// Sets up observers to monitor player state
+        func setupObservers() {
             // Observe player status
             statusObserver = player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
                 guard let self = self else { return }
@@ -103,9 +98,9 @@ struct VideoPlayerView: UIViewControllerRepresentable {
                     // Update isPlaying based on actual player state
                     switch player.timeControlStatus {
                     case .playing:
-                        self.parent.isPlaying = true
+                        self.isPlaying.wrappedValue = true
                     case .paused:
-                        self.parent.isPlaying = false
+                        self.isPlaying.wrappedValue = false
                     case .waitingToPlayAtSpecifiedRate:
                         break
                     @unknown default:
@@ -115,12 +110,11 @@ struct VideoPlayerView: UIViewControllerRepresentable {
             }
         }
         
-        /// Removes all observers when view is deallocated
+        /// Removes all observers when coordinator is deallocated
         deinit {
             statusObserver?.invalidate()
-            if let observer = timeObserver {
-                parent.player.removeTimeObserver(observer)
-            }
+            player.pause()
+            player.replaceCurrentItem(with: nil)
         }
     }
     
@@ -128,8 +122,7 @@ struct VideoPlayerView: UIViewControllerRepresentable {
     
     /// Dismantles the view controller and cleans up resources
     static func dismantleUIViewController(_ uiViewController: AVPlayerViewController, coordinator: Coordinator) {
-        uiViewController.player?.pause()
-        uiViewController.player = nil
+        coordinator.player.pause()
     }
 }
 
