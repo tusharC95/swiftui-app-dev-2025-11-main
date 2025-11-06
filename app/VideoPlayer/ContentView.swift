@@ -82,8 +82,8 @@ struct ContentView: View {
                         resetHideControlsTimer()
                     }
                 )
-                .onChange(of: isPlaying) { playing in
-                    if playing {
+                .onChange(of: isPlaying) {
+                    if isPlaying {
                         resetHideControlsTimer()
                     }
                 }
