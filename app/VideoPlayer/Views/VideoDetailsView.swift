@@ -41,7 +41,7 @@ struct VideoDetailsView: View {
                     .markdownTheme(.gitHub)
                     .padding(.top, 4)
             }
-            .padding()
+            .padding([.horizontal, .bottom])
         }
     }
 }

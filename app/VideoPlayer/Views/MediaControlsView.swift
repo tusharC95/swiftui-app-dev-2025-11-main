@@ -33,35 +33,52 @@ struct MediaControlsView: View {
         HStack(spacing: 40) {
             // Previous Button
             Button(action: onPrevious) {
-                Image("previous")
-                    .resizable()
-                    .renderingMode(.template)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32)
-                    .foregroundColor(canGoPrevious ? .primary : .gray)
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 221/255, green: 221/255, blue: 221/255))
+                        .frame(width: 60, height: 60)
+                    
+                    Image("previous")
+                        .resizable()
+                        .renderingMode(.template)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 28, height: 28)
+                        .foregroundColor(.black)
+                }
             }
             .disabled(!canGoPrevious)
             .opacity(canGoPrevious ? 1.0 : 0.5)
             
             // Play/Pause Button
             Button(action: togglePlayPause) {
-                Image(isPlaying ? "pause" : "play")
-                    .resizable()
-                    .renderingMode(.template)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 44, height: 44)
-                    .foregroundColor(.primary)
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 221/255, green: 221/255, blue: 221/255))
+                        .frame(width: 80, height: 80)
+                    
+                    Image(isPlaying ? "pause" : "play")
+                        .resizable()
+                        .renderingMode(.template)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 36, height: 36)
+                        .foregroundColor(.black)
+                }
             }
-            .scaleEffect(1.1)
             
             // Next Button
             Button(action: onNext) {
-                Image("next")
-                    .resizable()
-                    .renderingMode(.template)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32)
-                    .foregroundColor(canGoNext ? .primary : .gray)
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 221/255, green: 221/255, blue: 221/255))
+                        .frame(width: 60, height: 60)
+                    
+                    Image("next")
+                        .resizable()
+                        .renderingMode(.template)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 28, height: 28)
+                        .foregroundColor(.black)
+                }
             }
             .disabled(!canGoNext)
             .opacity(canGoNext ? 1.0 : 0.5)
