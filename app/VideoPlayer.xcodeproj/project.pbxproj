@@ -195,6 +195,9 @@
 			);
 			mainGroup = 3A6E03A22EB54813008E2A35;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5BEE31782EBD2FE800F77782 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3A6E03AC2EB54813008E2A35 /* Products */;
 			projectDirPath = "";
@@ -552,6 +555,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5BEE31782EBD2FE800F77782 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 3A6E03A32EB54813008E2A35 /* Project object */;
 }
